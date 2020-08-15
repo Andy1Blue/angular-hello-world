@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Task } from './task';
+import { FormStyle } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,9 @@ import { Task } from './task';
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
+  editMode = false;
+  taskName = 'Sugested: Cleaning';
+  taskDate = '';
   config: { [key: string]: string | Date } = null;
   title = 'Tasker';
   tasks: Task[] = [
@@ -20,6 +24,11 @@ export class AppComponent {
       deadline: '2020-11-11',
       done: true,
     },
+    {
+      name: 'Learn spanish',
+      deadline: '2020-12-12',
+      done: false,
+    },
   ];
 
   constructor() {
@@ -30,6 +39,7 @@ export class AppComponent {
         date: new Date(),
       };
     }, 500);
+    this.sortTasks();
   }
 
   get footer(): string {
@@ -38,5 +48,46 @@ export class AppComponent {
 
   getDate(): Date {
     return new Date();
+  }
+
+  clearTasks(): void {
+    this.tasks = [];
+  }
+
+  onKeyUp(event: KeyboardEvent): void {
+    const target = event.target as HTMLInputElement;
+    this.taskName = target.value;
+  }
+
+  createTask(): void {
+    const task: Task = {
+      name: this.taskName,
+      deadline: this.taskDate,
+      done: false,
+    };
+    this.tasks.push(task);
+    this.taskName = '';
+    this.taskDate = '';
+    this.sortTasks();
+  }
+
+  switchedEditMode(): void {
+    this.editMode = !this.editMode;
+  }
+
+  markTaskAsDone(task: Task): void {
+    task.done = true;
+    this.sortTasks();
+  }
+
+  deleteTask(task: Task): void {
+    this.tasks = this.tasks.filter((e) => e !== task);
+    this.sortTasks();
+  }
+
+  private sortTasks(): void {
+    this.tasks = this.tasks.sort((a: Task, b: Task) =>
+      a.done === b.done ? 0 : a.done ? 1 : -1
+    );
   }
 }
